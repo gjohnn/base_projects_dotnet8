@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    container_name: baseproject_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: base_project
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: baseproject_api
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_URLS: "http://+:5000"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=db;Database=base_project;Username=postgres;Password=postgres"
+      Jwt__Key: "YOUR_SECRET_KEY"
+      Jwt__Issuer: "BaseProject"
+      Jwt__Audience: "BaseProject"
+
+volumes:
+  db_data:
